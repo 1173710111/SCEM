@@ -1,0 +1,49 @@
+
+```{r echo = FALSE}
+animals <- c("Snake","Ostrich","Cat","Spider")
+num_legs <- c(0,2,4,8)
+print(animals)
+print(num_legs)
+```
+
+```{r echo = FALSE}
+animals_df <- data.frame(animals = animals, num_legs=num_legs)
+print(animals_df)
+```
+### Matrix Operation
+```{r}
+### Matrix 
+X_data <- seq(from = 12, to = 0, by = -2)
+X <- matrix(X_data, nrow=2, ncol = 3, byrow = FALSE)
+X
+
+Y_data <- seq(from =1, to = 4, by = 1)
+Y <- matrix(Y_data, nrow = 2,ncol = 2, byrow = FALSE)
+Y
+
+Z_data <- seq(from =4, to = 10, by = 2)
+Z <- matrix(Z_data, nrow = 2,ncol = 2, byrow = FALSE)
+Z
+### Matrix transpose
+Y_t <-t(Y)
+Y_t
+Z_t <-t(Z)
+Z_t
+
+### Matrix sums
+Y+Z
+### Matrix multiplication
+Y %*% Z
+Y_t %*% Z_t
+Y %*% X
+###Matrix element-wise multiplication.
+Y * Z
+Y_t * Z_t
+```
+
+```{r}
+###Matrix inverse
+solve(Y)
+solve(Y) %*% Y
+### slove(Y) %*% X
+```

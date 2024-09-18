@@ -1,0 +1,14 @@
+### Wave plot
+```{r}
+x <- seq(from=0, to=20, by=0.01)
+y <- sin(x)
+sin_df <-data.frame(x,y)
+head(sin_df,3)
+plot(x,y,main="y=sin(x)", type = "l")
+
+```
+
+### Mathematical Formula
+$$
+\sin^2(x) + \sin^2(y) =1 
+$$
