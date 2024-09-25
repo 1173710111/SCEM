@@ -1,0 +1,163 @@
+---
+title: "Assignment02"
+author: "zerofrom"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(Stat2Data)
+```
+# 1. Data Wrangling
+```{r}
+data("Hawks")
+```
+
+## 1.1 (Q1)   
+Properties:
+```{r}
+names_variable <- colnames(Hawks)
+print(names_variable)
+```
+Species names:
+```{r}
+data_species <- Hawks  %>%
+  distinct(Species)
+print(data_species)
+```
+Sample Weight data:
+```{r}
+weight_data <- Hawks  %>%
+  distinct(Weight) 
+head(weight_data,5)
+```
+#### Data Frame hSF:
+```{r}
+hSF <- Hawks %>%
+  filter(Species == "RT", Weight >= 1000) %>%
+  select(Wing, Weight, Tail)
+head(hSF,5)
+```
+
+
+## 1.1 (Q2)   
+#### How many variables does the data frame hSF have?
+```{r}
+num_variables <- ncol(hSF)
+print(num_variables)
+```
+#### What would you say to communicate this information to a Machine Learning practitioner?
+```{r}
+answer <- paste("There are",num_variables,"variables in the data frame hSF used for training.")
+print(answer)
+```
+#### How many examples does the data frame hSF have? How many observations? How many cases?
+```{r}
+num_examples <- nrow(hSF)
+print(num_examples)
+```
+
+## 1.2 (Q1)
+#### Sort by Wing:
+```{r}
+hSF_wing <- hSF %>%
+  arrange(Wing)
+head(hSF_wing,5)
+```
+
+## 1.3 (Q1)
+#### hawkSpeciesNameCodes:
+```{r}
+hawkSpeciesNameCodes <- data.frame(
+  species_code=c("CH","RT","SS"),
+  species_name_full=c("Cooper's","Red-tailed","Sharp-shinned")
+)
+print(hawkSpeciesNameCodes)
+```
+
+## 1.3 (Q2)
+#### hawksFullName:
+```{r}
+hawkFullName <- Hawks %>%
+  left_join(hawkSpeciesNameCodes, by=c("Species"="species_code")) %>%
+  select(-Species) %>%
+  rename(Species=species_name_full) 
+head(hawkFullName,7)
+```
+
+## 1.3 (Q3)
+#### hawksFullName Select Print:
+```{r}
+hawkFullName_select <- hawkFullName %>%
+  select(Species,Wing,Weight)
+head(hawkFullName_select,7)
+```
+
+#### Does it matter what type of join function you use here? In what situations would it make a difference?
+```{r}
+print("A left_join B: Return all rows in A.")
+print("A right_join B: Return all rows in B.")
+print("A inner_join B: Return only the rows in both A and B based on the specified keys.")
+print("A full_join B: Return all rows from both A and B")
+```
+
+
+## 1.4 (Q1)
+#### bird BMI:
+```{r}
+hawksWithBMI <- Hawks %>%
+  select(Species,Wing,Weight) %>%
+  mutate(bird_BMI = 1000*Weight/(Wing*Wing)) %>%
+  select(Species,bird_BMI) %>%
+  arrange(desc(bird_BMI))
+head(hawksWithBMI, 8)
+```
+....
+
+## 1.5 (Q1)
+#### Summarize_data:
+```{r}
+summary_data <- hawkFullName %>%
+  filter(Wing != 0 | Tail != 0) %>% 
+  group_by(Species) %>%
+  summarize(
+    num_rows = n(),
+    mn_wing = mean(Wing, na.rm = TRUE),
+    nd_wing = median(Wing, na.rm = TRUE),
+    t_mn_wing = mean(Wing, trim=0.1, na.rm = TRUE),
+    b_wt_ratio = max(Wing/Tail, na.rm = TRUE)
+    ) %>%
+  select(Species,num_rows,mn_wing,nd_wing,t_mn_wing,b_wt_ratio)
+print(summary_data)
+```
+
+## 1.5 (Q2)
+#### Summarize_na_number:
+```{r}
+summary_number <- hawkFullName %>%
+  select(Species,everything()) %>%
+  group_by(Species) %>%
+  summarize(
+    across(
+      Wing:Tarsus,
+      ~ sum(is.na(.))
+    ),
+    Crop = sum(is.na(Crop))
+  )
+print(summary_number)
+```
+....
+
+# 2. Random experiments, events and sample spaces, and the set theory
+
+....
+
+# 3. Probability theory
+
+## 3 (Q1)
+
+## 3 (Q2)
+
+.....
