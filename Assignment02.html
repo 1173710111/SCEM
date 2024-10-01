@@ -11,7 +11,7 @@
 
 <meta name="author" content="zerofrom" />
 
-<meta name="date" content="2024-09-25" />
+<meta name="date" content="2024-10-01" />
 
 <title>Assignment02</title>
 
@@ -352,7 +352,7 @@ display: none;
 
 <h1 class="title toc-ignore">Assignment02</h1>
 <h4 class="author">zerofrom</h4>
-<h4 class="date">2024-09-25</h4>
+<h4 class="date">2024-10-01</h4>
 
 </div>
 
@@ -516,14 +516,115 @@ situations would it make a difference?</h4>
 <div id="random-experiments-events-and-sample-spaces-and-the-set-theory" class="section level1">
 <h1>2. Random experiments, events and sample spaces, and the set
 theory</h1>
-<p>….</p>
+<div id="q1-5" class="section level2">
+<h2>2.1 (Q1)</h2>
+<p><strong>Random experiments: </strong> A random experiment is a
+procedure that meet both of the following conditions:</p>
+<ol style="list-style-type: decimal">
+<li><p>has a well-defined set of possible outcomes;</p></li>
+<li><p>could (at least in principle) be repeated arbitrarily many
+times.</p></li>
+</ol>
+<p><strong>Events: </strong> An event is a set of possible outcomes of
+an experiment.</p>
+<p><strong>Sample spaces: </strong> A sample space is the set of
+possible outcomes of interest for a random experiment.</p>
+<p><strong>The set theory: </strong> A set is just a collection of
+objects of interest, such as the possible outcomes.</p>
+</div>
+<div id="q2-3" class="section level2">
+<h2>2.1 (Q2)</h2>
+<p><strong>Example: </strong> The result of both rolls of the dice is
+the same: {(1,1),(2,2),(3,3),(4,4),(5,5),(6,6)}</p>
+<p><strong>Sample space: </strong>{</p>
+<p>(1,1),(1,2),(1,3),(1,4),(1,5),(1,6),</p>
+<p>(2,1),(2,2),(2,3),(2,4),(2,5),(2,6),</p>
+<p>…… (6,1),(6,2),(6,3),(6,4),(6,5),(6,6)}</p>
+<p><strong>Total number: </strong> 2^36</p>
+<p><strong>Is the empty set considered as an event: </strong> Yes, it
+represents the event where no outcome occurs, meaning an impossible
+event.</p>
+</div>
+<div id="q1-6" class="section level2">
+<h2>2.2 (Q1)</h2>
+<p>A ∪ B = {1, 2, 3, 4, 6}<br />
+A ∪ C = {1, 2, 3, 4, 5, 6}<br />
+A ∩ B = {2}<br />
+A ∩ C = ∅<br />
+A ∖ B = {1, 3}<br />
+A ∖ C = {1, 2, 3}<br />
+A and B are not disjoint<br />
+A and C are disjoint<br />
+B and A ∖ B are disjoint<br />
+Partition into two sets: {{1, 3, 5}, {2, 4, 6}}<br />
+Partition into three sets: {{1, 6}, {2, 3}, {4, 5}}</p>
+</div>
+<div id="q1-7" class="section level2">
+<h2>2.2 (Q1)</h2>
+<ol style="list-style-type: decimal">
+<li><p><span class="math display">\[(A^c)^c = A\]</span><br />
+</p></li>
+<li><p><span class="math display">\[\Omega^c = \emptyset\]</span><br />
+</p></li>
+<li><p>Let <span class="math inline">\(x \in B^c\)</span>, then <span class="math inline">\(x \notin B\)</span>.<br />
+Since <span class="math inline">\(A \subseteq B\)</span>，then <span class="math inline">\(x \notin A\)</span>，so <span class="math inline">\(x \in A^c\)</span>.<br />
+Therefore，<span class="math inline">\(B^c \subseteq A^c\)</span>.<br />
+</p></li>
+<li><p><span class="math display">\[
+(A \cap B)^c = \{ x \in \Omega : x \notin A \cap B \}
+\]</span><br />
+It means that <span class="math inline">\(x\)</span> is either not in
+<span class="math inline">\(A\)</span> or not in <span class="math inline">\(B\)</span>.<br />
+Therefore,<br />
+<span class="math display">\[
+(A \cap B)^c = A^c \cup B^c
+\]</span><br />
+Let’s suppose a sequence of events <span class="math inline">\(A_1, A_2,
+\dots, A_K \subseteq \Omega\)</span>.<br />
+The general form of this law for the intersection of multiple sets is:
+<span class="math display">\[
+\left( \bigcap_{k=1}^{K} A_k \right)^c = \bigcup_{k=1}^{K} A_k^c
+\]</span><br />
+</p></li>
+<li><p>The complement of the union <span class="math inline">\(A \cup
+B\)</span> is the set of all elements not in <span class="math inline">\(A \cup B\)</span>: <span class="math display">\[
+(A \cup B)^c = \{ x \in \Omega : x \notin A \cup B \}
+\]</span> This means that <span class="math inline">\(x\)</span> is
+neither in <span class="math inline">\(A\)</span> nor in <span class="math inline">\(B\)</span>.<br />
+This means that <span class="math display">\[
+x \in A^c \quad \text{and} \quad x \in B^c
+\]</span> This means that <span class="math display">\[
+x \in A^c \cap B^c
+\]</span> Therefore<br />
+<span class="math display">\[
+(A \cup B)^c = A^c \cap B^c
+\]</span></p></li>
+<li><p>the complement of the union of multiple sets is the intersection
+of their complements: <span class="math display">\[
+\left( \bigcup_{k=1}^{K} A_k \right)^c = \bigcap_{k=1}^{K} A_k^c
+\]</span> This is a generalization of the law for multiple
+events.</p></li>
+</ol>
+</div>
+<div id="q3-1" class="section level2">
+<h2>2.2 (Q3)</h2>
+<p>For each element <span class="math inline">\(w_i \in \Omega\)</span>,
+when forming a subset <span class="math inline">\(A\)</span>, we have
+two choices: 1. Include the element <span class="math inline">\(w_i\)</span>. 2. Exclude the element <span class="math inline">\(w_i\)</span>.</p>
+<p>This means that for every element, there are two possible choices,
+and since there are <span class="math inline">\(K\)</span> elements in
+<span class="math inline">\(\Omega\)</span>, the total number of subsets
+can be calculated as follows: <span class="math display">\[
+|E| = 2^K
+\]</span> ….</p>
+</div>
 </div>
 <div id="probability-theory" class="section level1">
 <h1>3. Probability theory</h1>
-<div id="q1-5" class="section level2">
+<div id="q1-8" class="section level2">
 <h2>3 (Q1)</h2>
 </div>
-<div id="q2-3" class="section level2">
+<div id="q2-4" class="section level2">
 <h2>3 (Q2)</h2>
 <p>…..</p>
 </div>
