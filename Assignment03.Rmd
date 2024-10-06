@@ -1,0 +1,165 @@
+---
+title: "Assignment03"
+author: "zerofrom"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(Stat2Data)
+```
+# 1. Data Wrangling
+```{r}
+data("Hawks")
+```
+
+## 1 (Q1) 
+```{r}
+hawksSmall<-
+drop_na(select(Hawks,Age,Day,Month,Year,CaptureTime,Species,Wing,Weight
+,Tail))
+number<- dim(hawksSmall)
+print(number)
+head(hawksSmall,5)
+```
+
+## 1 (Q2) 
+```{r}
+ggplot(
+  hawksSmall,
+  aes(x=Weight) 
+) +
+  geom_histogram(
+    binwidth = 10
+  ) +
+  labs(
+    x="Weight",
+    y="Count"
+   ) +
+  theme_minimal()
+
+```
+
+## 1 (Q3) 
+```{r}
+# adjust = 0.5 
+p1 <- ggplot(hawksSmall, aes(x=Tail)) +
+  geom_density(adjust=0.5) +
+  labs(
+    x="Tail length",
+    y="Count"
+  )
+
+# adjust = 2
+p2 <- ggplot(hawksSmall, aes(x=Tail)) +
+  geom_density(adjust=2) +
+  labs(
+    x="Tail length",
+    y="Count"
+  )
+p1
+p2
+```
+
+## 1 (Q4) 
+```{r}
+ggplot(
+  hawksSmall,
+  aes(x=Tail,color=Species)
+  )+
+  geom_density(
+    adjust=1
+    ) +
+  labs(
+    x="Tail length",
+    y="Count"
+  )
+```
+
+## 1 (Q5) 
+```{r}
+ggplot(
+  hawksSmall,
+  aes(x=Tail,y=Species,fill=Species)
+)+
+  geom_violin()+
+  labs(
+    x="Tail(mm)",
+    y="Density"
+  )
+```
+
+## 1 (Q6) 
+```{r}
+ggplot(
+  hawksSmall,
+  aes(x=Tail,y=Weight,color=Species,shape=Species)
+)+
+  geom_point()+
+  labs(
+    x="Tail(mm)",
+    y="Weight(mm)"
+  )
+```  
+
+1. There are 4 aesthetics: x=Tail,y=Weight,color=Species,shape=Species.  
+2. Points.  
+3. Color: Different colors refers to different species.  
+   Shape: Different shapes refers to different species.  
+   Axes Labels: These provide context for what the x(Tail length) and y(Weight) axes represent.  
+   
+## 1 (Q7)
+```{r}
+ggplot(
+  hawksSmall,
+  aes(x=Tail,y=Weight,color=Species)
+)+
+  geom_point()+
+  geom_smooth(method = "lm")+
+  facet_wrap(~Species,scales="free")+
+  labs(
+    x="Tail(mm)",
+    y="Weight(mm)"
+  )
+```  
+
+1. Color: Used to differentiate between species.  
+   Line: A trend line indicates the relationship between Tail and Weight.  
+3.The trend line shows a positive slope, which suggests positive correlation between the weight of the hawks and their tail lengths. 
+
+## 1 (Q8)
+```{r}
+heaviest_hawk <-hawksSmall %>%
+  filter(Weight == max(Weight)) %>%
+  select(Tail, Weight)
+
+ggplot(
+  hawksSmall,
+  aes(x=Tail,y=Weight,color=Species,shape=Species)
+)+
+  geom_point()+
+  labs(
+    x="Tail(mm)",
+    y="Weight(mm)"
+  )+
+  geom_curve(
+    aes(x=heaviest_hawk$Tail, y=heaviest_hawk$Weight-200,
+        xend=heaviest_hawk$Tail, yend=heaviest_hawk$Weight),
+    curvature = 0.5,
+    arrow = arrow(length=unit(0.01,"inches"),
+                  type="closed"),
+    color="black"
+  )+
+  geom_point(
+    aes(x=heaviest_hawk$Tail, y=heaviest_hawk$Weight),
+    shape=16,
+    size=1,
+    color="black"
+  )+
+  annotate("text",
+           x=heaviest_hawk$Tail,
+           y=heaviest_hawk$Weight -200,
+           label="heaviest hawk")
+```
