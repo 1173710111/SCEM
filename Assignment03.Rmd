@@ -2,13 +2,18 @@
 title: "Assignment03"
 author: "zerofrom"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  pdf_document: null
+  latex_engine: xelatex
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(Stat2Data)
+library(dplyr)
 ```
 # 1. Data Wrangling
 ```{r}
@@ -18,8 +23,7 @@ data("Hawks")
 ## 1 (Q1) 
 ```{r}
 hawksSmall<-
-drop_na(select(Hawks,Age,Day,Month,Year,CaptureTime,Species,Wing,Weight
-,Tail))
+drop_na(select(Hawks,Age,Day,Month,Year,CaptureTime,Species,Wing,Weight,Tail))
 number<- dim(hawksSmall)
 print(number)
 head(hawksSmall,5)
@@ -162,4 +166,170 @@ ggplot(
            x=heaviest_hawk$Tail,
            y=heaviest_hawk$Weight -200,
            label="heaviest hawk")
+```
+
+# 2. Finite probability spaces
+- \(n = 10\)    : number of balls.
+- \(r = 3\)     : number of red balls.
+- \(n - r = 7\) : number of blue balls.
+- \(k = 22\)    : repeat times.
+- \(q = z\)     : red balls in repeat times.
+$$
+P(X = z) = \binom{k}{q} \left( \frac{r}{n} \right)^z \left(\frac{n-r}{n} \right)^{k - z} \label{eq:finite_space}
+$$
+## 2 (Q1)  
+#### the probability that z out of the 22 selections were red spheres
+$$
+P(X = z) = \binom{22}{z} \left( \frac{3}{10} \right)^z \left(\frac{7}{10} \right)^{22 - z} \label{eq:example_calculation}
+$$
+
+## 2 (Q2)
+```{r}
+prob_red_spheres <- function(z){
+  n <- 10
+  r <- 3
+  k <- 22
+  prob <- choose(k,z) * (r/n)^z * ((n-r)/n)^(k-z)
+  return(prob)
+}
+print(prob_red_spheres(10))
+```
+
+## 2 (Q3)
+```{r}
+num_reds <- seq(1:22)
+prob <- sapply(num_reds, prob_red_spheres)
+prob_by_num_reds = data.frame(num_reds = num_reds, prob = prob)
+prob_by_num_reds %>% head(3)
+```
+
+## 2 (Q4)
+```{r}
+ggplot(
+  prob_by_num_reds,
+  aes(x=num_reds,y=prob)
+)+
+  geom_line()+
+  labs(x="Number of reds", y="Probability")
+```
+
+## 2 (Q5)
+### 2 (Q5.1)
+```{r}
+## case 1: Setting the random seed just once
+set.seed(0)
+for(i in 1:5){
+ print(sample(100,5,replace=FALSE))
+ # The result may well differ every time
+}
+## case 2: Resetting the random seed every time
+set.seed(1)
+print(sample(100,5,replace=FALSE))
+set.seed(1)
+print(sample(100,5,replace=FALSE))
+set.seed(1)
+print(sample(100,5,replace=FALSE))
+# The result should not change
+## case 3: reproducing case 1 if we set a random seed at the beginning. 
+set.seed(0)
+for(i in 1:5){
+ print(sample(100,5,replace=FALSE))
+} # The result will be 5 samples exactly the same as in case 1 (why?).
+```
+### 2 (Q5.2)
+```{r}
+itermap <- function(.x, .f) {
+ result <- list()
+ for (item in .x) {
+ result <- c(result, list(.f(item)))
+ }
+ return(result)
+}
+itermap( c(1,2,3), function(x){ return(c(x,x^2)) } )
+
+itermap_dbl <- function(.x, .f) {
+ result <- numeric(length(.x))
+ for (i in 1:length(.x)) {
+ result[i] <- .f(.x[[i]])
+ }
+ return(result)
+}
+itermap_dbl( c(1,2,3), function(x){ return(x^3) } )
+```
+### 2 (Q5.3)
+```{r}
+num_trials <- 1000
+set.seed(0)
+sampling_with_replacement_simulation<-data.frame(trial=1:num_trials) %>%
+  mutate(sample_balls = itermap(.x=trial, function(x){sample(10,22, replace = TRUE)})) %>%
+  mutate(num_reds = itermap_dbl(sample_balls, 
+                                function(x){
+                                  sum(x<=3)
+                                }))
+head(sampling_with_replacement_simulation, 3)
+```
+
+## 2 (Q6)
+```{r}
+num_reds_in_simulation <- sampling_with_replacement_simulation %>% 
+  pull(num_reds)
+prob_by_num_reds <- prob_by_num_reds %>%
+  mutate(predicted_prob = itermap_dbl(num_reds,
+                                      function(.x){
+                                        sum(num_reds_in_simulation == .x)/num_trials
+                                      }))
+head(prob_by_num_reds, 5)
+```
+
+## 2 (Q7)
+```{r}
+prob_by_num_reds %>%
+ rename(TheoreticalProbability=prob, 
+EstimatedProbability=predicted_prob) %>%
+ ggplot() + geom_line(aes(x=num_reds, y=TheoreticalProbability)) +
+ geom_line(aes(x=num_reds, y=EstimatedProbability), linetype='dashed') +
+ geom_point(aes(x=num_reds, y=EstimatedProbability)) + 
+ theme_bw() + xlab("Number of reds") + ylab("Probabilities")
+```
+
+
+# 3
+## 3 (Q1)
+```{r}
+missing_proportion <-function(num_trial){
+  set.seed(123)
+  sampling_without_replacement_simulation <- data.frame(trial = 1:num_trial) %>%
+    mutate(sample_balls = itermap(trial,
+                                  function(x){
+                                    sample(100, 10,replace=FALSE )
+                                  })) %>%
+    mutate(num_reds = itermap_dbl(sample_balls,
+                                  function(x){sum(x<=50)}),
+           num_blue = itermap_dbl(sample_balls,
+                                  function(x){sum(x>50 & x<=80)}),
+           num_green = itermap_dbl(sample_balls,
+                                   function(x){sum(x>80 & x<=100)})) %>%
+    mutate(min_count = pmin(num_reds, num_blue, num_green))
+  
+  missing_color_proportion <- mean(sampling_without_replacement_simulation$min_count == 0)
+  return(missing_color_proportion)
+}
+
+num_trials <- c(10, 100, 500, 1000, 2000, 5000, 10000)
+missing_proportion_data <- data.frame(num_trail = num_trials) %>%
+  mutate(missing_proportion = itermap(num_trail,
+                                       function(x){
+                                         missing_proportion(x)
+                                       }))
+print(missing_proportion_data)
+
+```
+
+## 3 (Q2)
+```{r}
+number_missing1 <- choose(50,10)+choose(70,10)+choose(80,10)
+number_missing2 <- choose(20,10)+choose(30,10)+choose(50,10)
+number_all <- choose(100,10)
+proportion_missing <- (number_missing1-number_missing2)/number_all
+print(proportion_missing)
 ```

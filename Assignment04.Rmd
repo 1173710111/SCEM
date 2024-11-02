@@ -1,0 +1,206 @@
+---
+title: "Assignment05"
+author: "zerofrom"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+  latex_engine: xelatex
+  pdf_document: null
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(Stat2Data)
+library(dplyr)
+```
+# 1. Data Wrangling
+```{r}
+data("Hawks")
+```
+## 1.1 Location estimators
+## 1.1 (Q1)
+```{r}
+HawksTail <- Hawks$Tail
+Tail_mean <- mean(HawksTail, na.rm=TRUE)
+Tail_median <- median(HawksTail, na.rm=TRUE)
+head(HawksTail,6)
+head(Tail_mean)
+head(Tail_median)
+```
+## 1.2 Combining location estimators with the summarise function
+## 1.2 (Q1)
+```{r}
+Hawks_summary <- Hawks %>%
+  summarise(
+    Wing_mean = mean(Wing, na.rm=TRUE),
+    Wing_t_mean = mean(Wing, trim=0.5,na.rm=TRUE),
+    Wing_med = median(Wing, na.rm=TRUE),
+    Weight_mean = mean(Weight, na.rm=TRUE),
+    Weight_t_mean = mean(Weight,trim=0.5,na.rm=TRUE),
+    Weight_med = median(Weight, na.rm=TRUE)
+)
+Hawks_summary
+```
+
+## 1.3 Location and dispersion estimators under linear transformations
+## 1.3 (Q1)
+mean = aA + b
+```{r}
+a<-2
+b<-3
+Tail_mean_transformed <- mean(HawksTail * a + b)
+print(paste("expected mean: ",Tail_mean * a + b))
+print(paste("transformed mean: ",Tail_mean_transformed))
+```
+## 1.3 (Q2)
+variance = a^2 * p  
+standard deviation = |a| * q
+```{r}
+Tail_var <- var(HawksTail)
+Tail_sd <-sd(HawksTail)
+Tail_var_transformed <- var(HawksTail * a + b)
+Tail_sd_transformed <- sd(HawksTail * a + b)
+print(paste("expected variance: ",Tail_var * a * a))
+print(paste("transformed variance: ",Tail_var_transformed))
+print(paste("expected standard deviation: ",Tail_sd * a))
+print(paste("transformed standard deviation: ",Tail_sd_transformed))
+```
+
+## 1.4 Robustness of location estimators
+```{r}
+hal<-Hawks$Hallux # Extract the vector of hallux lengths
+hal<-hal[!is.na(hal)] # Remove any nans
+outlier_val<-100
+num_outliers<-10
+corrupted_hal<-c(hal,rep(outlier_val,times=num_outliers))
+hal_mean <-mean(hal)
+corrupted_hal_mean <- mean(corrupted_hal)
+print(hal_mean)
+print(corrupted_hal_mean)
+
+num_outliers_vect <- seq(0,1000)
+means_vect <- c()
+for(num_outliers in num_outliers_vect){
+ corrupted_hal <- c(hal,rep(outlier_val,times=num_outliers))
+ means_vect <- c(means_vect, mean(corrupted_hal))
+}
+print(means_vect)
+```
+
+## 1.4 (Q1) Sample median:
+```{r}
+medians_vect <- c()
+for(num_outliers in num_outliers_vect){
+ corrupted_hal <- c(hal,rep(outlier_val,times=num_outliers))
+ medians_vect <- c(medians_vect, median(corrupted_hal))
+}
+print(medians_vect)
+```
+
+## 1.4 (Q2) Sample trimmed mean:
+```{r}
+t_means_vect <- c()
+for(num_outliers in num_outliers_vect){
+ corrupted_hal <- c(hal,rep(outlier_val,times=num_outliers))
+ t_means_vect <- c(t_means_vect, mean(corrupted_hal,trim=0.1))
+}
+print(t_means_vect)
+```
+
+## 1.4 (Q3) Visualisation
+```{R}
+df_means_medians <- data.frame(num_outliers=num_outliers_vect, 
+  mean=means_vect,
+  t_mean=t_means_vect, 
+  median=medians_vect)
+
+df_means_medians %>%
+ pivot_longer(!num_outliers, names_to = "Estimator", values_to =
+"Value") %>%
+ ggplot(aes(x=num_outliers,color=Estimator, 
+linetype=Estimator,y=Value)) +
+ geom_line()+xlab("Number of outliers")
+
+head(df_means_medians,5)
+```
+
+## 1.5 Box plots and outliers
+## 1.5 (Q1)
+```{r}
+data("Hawks")
+Hawks_data <-
+  drop_na(select(Hawks,Species,Weight))
+Hawks_data %>%
+  ggplot(aes(x=factor(Species), y=Weight)) +
+  geom_boxplot() +
+  labs(
+    x="Species",
+    y="Weight"
+  )
+```
+## (Q2) quantile and boxplots
+```{r}
+Hawks_quantile <- Hawks %>%
+  group_by(Species) %>%
+  summarize(
+    quantile025 = quantile(Weight, 0.25, na.rm = TRUE),
+    quantile050 = quantile(Weight, 0.5, na.rm = TRUE),
+    quantile075 = quantile(Weight, 0.75, na.rm = TRUE)
+  )
+print(Hawks_quantile)
+```
+
+## (Q3)
+```{r}
+num_outliers <- function(x){
+  x <- na.omit(x)
+  q25 <- quantile(x, 0.25, na.rm = TRUE)
+  q75 <- quantile(x, 0.75, na.rm = TRUE)
+  IQR <- q75-q25
+  lowerbounder <- q25-1.5*IQR
+  upbounder <- q75+1.5*IQR
+  outliners <- x[x<lowerbounder | x>upbounder]
+  return(length(outliners))
+}
+num_outliers( c(0, 40,60,185))
+```
+
+## (Q4) Outliers by group
+```{r}
+Hawks_outliner <- Hawks %>%
+  group_by(Species) %>%
+  summarize(
+    num_outliers_weight = num_outliers(Weight)
+  )
+print(Hawks_outliner)
+```
+
+## 1.6 Covariance and correlation under linear transformations
+## 1.6(Q1)
+```{r}
+covariance <- cov(Hawks$Weight, Hawks$Wing, use = "complete.obs")
+correlation <- cor(Hawks$Weight, Hawks$Wing, use = "complete.obs")
+
+print(covariance)
+print(correlation)
+```
+
+## 1.6(Q2)
+```{r}
+a <- 2.4
+b <- 7.1
+c <- -1
+d <- 3
+
+covariance_expected <- a*c*covariance
+covariance_transformed <- cov(Hawks$Weight*a+b, Hawks$Wing*c+d, use = "complete.obs")
+correlation_expected <- correlation*a*c/(abs(a))/abs(c)
+correlation_transformed <- cor(Hawks$Weight*a+b,Hawks$Wing*c+d, use = "complete.obs")
+print(paste("expected covariance:",covariance_expected))
+print(paste("transformed covariance:",covariance_transformed))
+print(paste("expected correlation:",correlation_expected))
+print(paste("transformed correlation:",correlation_transformed))
+```
+
